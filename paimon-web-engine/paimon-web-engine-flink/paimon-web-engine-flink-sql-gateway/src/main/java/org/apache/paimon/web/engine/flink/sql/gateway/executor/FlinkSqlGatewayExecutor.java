@@ -52,6 +52,11 @@ public class FlinkSqlGatewayExecutor implements Executor {
         this.client = new SqlGatewayClient(session.getHost(), session.getPort());
     }
 
+    /**
+     * Execute the SQL statement.执行SQL语句并返回执行结果。
+     * @param multiStatement The SQL statement to be executed.
+     * @return ExecutionResult执行结果对象，包含了操作ID、作业ID以及是否需要获取结果等信息
+     */
     @Override
     public ExecutionResult executeSql(String multiStatement) throws Exception {
         String[] statements = StatementParser.parse(multiStatement);
@@ -101,6 +106,18 @@ public class FlinkSqlGatewayExecutor implements Executor {
         return executionResult;
     }
 
+    /**
+     * 执行DQL语句并返回执行结果。
+     *
+     * 此方法专门用于处理数据查询语言（如SELECT查询）的语句。
+     * 它将语句发送到Flink SQL Gateway进行执行，从服务器获取操作ID和结果。
+     * 根据操作类型，构造ExecutionResult对象，并可能包含作业ID和是否应获取结果的信息。
+
+     * @param statement 需要执行的DQL语句
+     * @param operationType 操作类型，例如：SELECT
+     * @return 执行结果对象，包含了操作ID、作业ID以及是否需要获取结果等信息
+     * @throws Exception 当执行或获取结果时发生错误
+     */
     private ExecutionResult executeDqlStatement(
             String statement, FlinkSqlOperationType operationType) throws Exception {
         String operationId = client.executeStatement(session.getSessionId(), statement, null);
@@ -134,9 +151,11 @@ public class FlinkSqlGatewayExecutor implements Executor {
         FetchResultsResponseBody fetchResultsResponseBody =
                 client.fetchResults(params.getSessionId(), params.getSubmitId(), params.getToken());
         ResultSet.ResultType resultType = fetchResultsResponseBody.getResultType();
+        // 如果结果类型不是EOS，则说明结果还没有准备好，需要继续等待。
         if (resultType == ResultSet.ResultType.EOS) {
             return ExecutionResult.builder().shouldFetchResult(false).build();
         }
+        // 将结果转换为ExecutionResult对象，并设置submitId 如果结果类型是EOS，则说明结果已经准备好，可以开始获取结果了。
         ExecutionResult.Builder builder =
                 CollectResultUtil.collectSqlGatewayResult(fetchResultsResponseBody.getResults());
         builder.submitId(params.getSubmitId());

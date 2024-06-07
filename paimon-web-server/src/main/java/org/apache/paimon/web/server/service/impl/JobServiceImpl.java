@@ -461,6 +461,7 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, JobInfo> implements J
                 sessionDTO.setPort(session.getPort());
                 sessionDTO.setUid(StpUtil.getLoginIdAsInt());
                 sessionDTO.setClusterId(Integer.valueOf(clusterId));
+                // trigger session heartbeat to keep the session alive
                 return sessionService.triggerSessionHeartbeat(sessionDTO) <= 0;
             }
         }
@@ -472,6 +473,7 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, JobInfo> implements J
             if (!StpUtil.isLogin()) {
                 throw new IllegalStateException("User must be logged in to access this resource");
             }
+            // getting session. check if there is an executor for the session
             if (shouldCreateSession(clusterId)) {
                 ClusterInfo clusterInfo = clusterService.getById(clusterId);
                 if (clusterInfo == null) {
@@ -492,8 +494,10 @@ public class JobServiceImpl extends ServiceImpl<JobMapper, JobInfo> implements J
                 ExecutionConfig config = ExecutionConfig.builder().sessionEntity(session).build();
                 EngineType engineType = EngineType.fromName(taskType.toUpperCase());
                 ExecutorFactoryProvider provider = new ExecutorFactoryProvider(config);
+                // get executor factory创建executor 区分 spark flink engine
                 ExecutorFactory executorFactory = provider.getExecutorFactory(engineType);
                 Executor executor = executorFactory.createExecutor();
+                //将executor 放入ConcurrentHashMap缓存
                 jobExecutorService.addExecutor(session.getSessionId(), executor);
             }
             return jobExecutorService.getExecutor(session.getSessionId());

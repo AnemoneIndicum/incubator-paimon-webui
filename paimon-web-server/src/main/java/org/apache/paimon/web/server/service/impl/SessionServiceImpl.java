@@ -41,6 +41,15 @@ public class SessionServiceImpl implements SessionService {
 
     @Autowired private UserService userService;
 
+    /**
+     * 创建会话。
+     * 根据传入的会话DTO（数据传输对象），通过SQL Gateway客户端打开一个新的会话。如果用户ID不为空，
+     * 则会根据用户ID获取用户名，生成唯一的会话名称，并尝试在指定的集群上创建会话。如果当前用户和集群上没有
+     * 存在的会话，或者当前会话心跳已过期，则创建新的会话实体并添加到会话管理器中。
+     *
+     * @param sessionDTO 会话的详细信息，包括主机、端口、用户ID和集群ID等。
+     * @throws RuntimeException 如果创建会话过程中发生异常，则抛出运行时异常。
+     */
     @Override
     public void createSession(SessionDTO sessionDTO) {
         try {
@@ -81,6 +90,15 @@ public class SessionServiceImpl implements SessionService {
         }
     }
 
+    /**
+     * 触发会话心跳检测。
+     * 该方法用于向指定的会话发送心跳请求，以确保会话处于活跃状态。
+     * 如果会话相关信息有效，则通过SqlGatewayClient向会话发送心跳。
+     * 如果在执行过程中发生异常，则视为会话不活跃。
+     *
+     * @param sessionDTO 会话数据传输对象，包含会话的唯一标识、主机地址、端口号等信息。
+     * @return 如果会话触发心跳成功或无需触发，则返回活跃状态码；如果发生异常，则返回不活跃状态码。
+     */
     @Override
     public int triggerSessionHeartbeat(SessionDTO sessionDTO) {
         try {
