@@ -96,13 +96,14 @@ public class FlinkCdcActionService implements ActionService {
     }
 
     private String getFlinkHome() {
-        String flinkHome = System.getenv("FLINK_HOME");
-        if (StringUtils.isBlank(flinkHome)) {
-            flinkHome = System.getProperty("FLINK_HOME");
-        }
-        if (StringUtils.isBlank(flinkHome)) {
-            throw new ActionException("FLINK_HOME is null");
-        }
-        return flinkHome;
+//        String flinkHome = System.getenv("FLINK_HOME");
+//        if (StringUtils.isBlank(flinkHome)) {
+//            flinkHome = System.getProperty("FLINK_HOME");
+//        }
+//        if (StringUtils.isBlank(flinkHome)) {
+//            throw new ActionException("FLINK_HOME is null");
+//        }
+        return "D:\\Tools\\flink-1.18.1\\";
+//        return flinkHome;
     }
 }

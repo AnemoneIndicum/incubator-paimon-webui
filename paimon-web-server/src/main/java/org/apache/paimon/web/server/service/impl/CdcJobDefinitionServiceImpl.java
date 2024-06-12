@@ -137,6 +137,7 @@ public class CdcJobDefinitionServiceImpl
     public R<Void> submit(Integer id, CdcJobSubmitDTO cdcJobSubmitDTO) {
         CdcJobDefinition cdcJobDefinition = baseMapper.selectById(id);
         String config = cdcJobDefinition.getConfig();
+        // one table or database
         FlinkCdcSyncType flinkCdcSyncType = FlinkCdcSyncType.valueOf(cdcJobDefinition.getCdcType());
         ActionService actionService = new FlinkCdcActionService();
         CdcGraph cdcGraph = CdcGraph.fromCdcGraphJsonString(config);
@@ -151,6 +152,7 @@ public class CdcJobDefinitionServiceImpl
         actionConfigs.put(
                 FlinkCdcOptions.SESSION_URL,
                 String.format("http://%s:%s", clusterInfo.getHost(), clusterInfo.getPort()));
+        // parse data source and target library configuration information.
         handleCdcGraphNodeData(actionConfigs, cdcGraph.getSource());
         handleCdcGraphNodeData(actionConfigs, cdcGraph.getTarget());
         ActionContext actionContext = factory.getActionContext(actionConfigs);
