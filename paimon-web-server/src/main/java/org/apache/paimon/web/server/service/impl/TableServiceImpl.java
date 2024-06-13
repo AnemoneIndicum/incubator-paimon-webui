@@ -388,6 +388,7 @@ public class TableServiceImpl implements TableService {
             Map<Integer, Integer> fieldIdIndexMap,
             Map<Integer, String> tableColumnIndexMap,
             List<TableChange> tableChanges) {
+        // update column name
         if (!Objects.equals(tableColumn.getField(), dataField.name())) {
             ColumnMetadata columnMetadata =
                     new ColumnMetadata(dataField.name(), dataField.type(), dataField.description());
@@ -400,7 +401,7 @@ public class TableServiceImpl implements TableService {
         ColumnMetadata columnMetadata =
                 new ColumnMetadata(
                         tableColumn.getField(), dataField.type(), dataField.description());
-
+        // update column  data type
         if (!DataTypeConvertUtils.convert(tableColumn.getDataType()).equals(dataField.type())) {
             TableChange.ModifyColumnType modifyColumnType =
                     TableChange.modifyColumnType(
@@ -408,13 +409,14 @@ public class TableServiceImpl implements TableService {
                             DataTypeConvertUtils.convert(tableColumn.getDataType()));
             tableChanges.add(modifyColumnType);
         }
-
+       // u[date column comment
         if (!Objects.equals(tableColumn.getComment(), dataField.description())) {
             TableChange.ModifyColumnComment modifyColumnComment =
                     TableChange.modifyColumnComment(columnMetadata, tableColumn.getComment());
             tableChanges.add(modifyColumnComment);
         }
 
+        // update table config
         String key = FIELDS_PREFIX + "." + tableColumn.getField() + "." + DEFAULT_VALUE_SUFFIX;
         if (options.get(key) != null) {
             String defaultValue = options.get(key);
@@ -430,7 +432,7 @@ public class TableServiceImpl implements TableService {
                 tableChanges.add(setOption);
             }
         }
-
+        // update column position
         if (tableColumn.getSort().equals(0) && fieldIdIndexMap.get(tableColumn.getId()) != 0) {
             TableChange.ModifyColumnPosition modifyColumnPosition =
                     TableChange.modifyColumnPosition(

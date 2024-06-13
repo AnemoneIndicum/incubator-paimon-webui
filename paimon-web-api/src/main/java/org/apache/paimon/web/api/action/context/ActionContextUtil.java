@@ -47,15 +47,14 @@ public class ActionContextUtil {
     }
 
     public static String getActionJarPath() {
-//        String actionJarPath = System.getenv("ACTION_JAR_PATH");
-//        if (StringUtils.isBlank(actionJarPath)) {
-//            actionJarPath = System.getProperty("ACTION_JAR_PATH");
-//        }
-//        if (StringUtils.isBlank(actionJarPath)) {
-//            throw new ActionException("ACTION_JAR_PATH is null");
-//        }
-        return "D:\\Tools\\flink-1.18.1\\paimon-flink-action-0.8.0.jar";
-//        return actionJarPath;
+        String actionJarPath = System.getenv("ACTION_JAR_PATH");
+        if (StringUtils.isBlank(actionJarPath)) {
+            actionJarPath = System.getProperty("ACTION_JAR_PATH");
+        }
+        if (StringUtils.isBlank(actionJarPath)) {
+            throw new ActionException("ACTION_JAR_PATH is null");
+        }
+        return actionJarPath;
     }
 
     public static List<String> getConfListFromString(String value, String spiltCharacter) {

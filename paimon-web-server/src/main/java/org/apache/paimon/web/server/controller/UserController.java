@@ -110,7 +110,6 @@ public class UserController {
         if (!userService.checkUserNameUnique(user)) {
             return R.failed(Status.USER_NAME_ALREADY_EXISTS, user.getUsername());
         }
-
         return userService.updateUser(user) > 0 ? R.succeed() : R.failed();
     }
 
