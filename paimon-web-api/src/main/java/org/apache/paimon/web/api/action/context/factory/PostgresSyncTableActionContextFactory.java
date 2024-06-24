@@ -20,7 +20,7 @@ package org.apache.paimon.web.api.action.context.factory;
 
 import org.apache.paimon.web.api.action.context.ActionContext;
 import org.apache.paimon.web.api.action.context.ActionContextUtil;
-import org.apache.paimon.web.api.action.context.MysqlSyncTableActionContext;
+import org.apache.paimon.web.api.action.context.PostgresSyncTableActionContext;
 import org.apache.paimon.web.api.action.context.options.FlinkCdcOptions;
 import org.apache.paimon.web.api.enums.FlinkCdcDataSourceType;
 import org.apache.paimon.web.api.enums.FlinkCdcSyncType;
@@ -29,12 +29,11 @@ import org.apache.paimon.web.common.util.JSONUtils;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-/** MysqlSyncTableActionContextFactory. */
-public class MysqlSyncTableActionContextFactory implements FlinkCdcActionContextFactory {
-
+/** PostgresSyncTableActionContextFactory. */
+public class PostgresSyncTableActionContextFactory implements FlinkCdcActionContextFactory {
     @Override
     public String sourceType() {
-        return FlinkCdcDataSourceType.MYSQL.getType();
+        return FlinkCdcDataSourceType.POSTGRESQL.getType();
     }
 
     @Override
@@ -49,16 +48,18 @@ public class MysqlSyncTableActionContextFactory implements FlinkCdcActionContext
 
     @Override
     public ActionContext getActionContext(ObjectNode actionConfigs) {
-        return MysqlSyncTableActionContext.builder()
+        return PostgresSyncTableActionContext.builder()
                 .sessionUrl(String.valueOf(actionConfigs.get(FlinkCdcOptions.SESSION_URL)))
                 .flinkJobType(FlinkJobType.SESSION)
                 .warehouse(JSONUtils.getString(actionConfigs, FlinkCdcOptions.WAREHOUSE))
                 .database(JSONUtils.getString(actionConfigs, FlinkCdcOptions.DATABASE))
                 .table(JSONUtils.getString(actionConfigs, FlinkCdcOptions.TABLE))
+                .partitionKeys(JSONUtils.getString(actionConfigs, FlinkCdcOptions.PARTITION_KEYS))
                 .primaryKeys(JSONUtils.getString(actionConfigs, FlinkCdcOptions.PRIMARY_KEYS))
+                .computedColumn(JSONUtils.getString(actionConfigs, FlinkCdcOptions.COMPUTED_COLUMN))
                 .actionPath(ActionContextUtil.getActionJarPath())
                 .catalogConfList(JSONUtils.getList(actionConfigs, FlinkCdcOptions.CATALOG_CONF))
-                .mysqlConfList(JSONUtils.getList(actionConfigs, FlinkCdcOptions.MYSQL_CONF))
+                .postgresConfList(JSONUtils.getList(actionConfigs, FlinkCdcOptions.POSTGRES_CONF))
                 .build();
     }
 }
